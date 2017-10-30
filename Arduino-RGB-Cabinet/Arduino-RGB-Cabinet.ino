@@ -5,18 +5,12 @@
 #include <WiFiClient.h>
 #include <WiFiServer.h>
 #include <WiFiUdp.h>
+#include "init.h"
 
 /* Defines */
 // General definitions
 #define FALSE 0
 #define TRUE 1
-
-// IO pin defines
-#define BLUELED 16    // D0 GPIO16
-#define YELLOWLED 5   // D5 GPIO14
-#define WHITELED 15   // D8 GPIO15
-
-#define PHOTORESISTOR A0
 
 /* Public variables */
 const char* ssid = "Malmsatter2_2,4GHz";
@@ -28,22 +22,6 @@ String request;
 
 int connectTimeOutCounter = 0;
 int ModeState = 0;
-
-
-/* ------------------------------------------------------*/
-/*
-   Sets up inputs and outputs
-*/
-/* ------------------------------------------------------*/
-void initIO(void)
-{
-    pinMode(BLUELED, OUTPUT);
-    pinMode(YELLOWLED, OUTPUT);
-    pinMode(LED_BUILTIN, OUTPUT);
-    digitalWrite(LED_BUILTIN, LOW);
-    digitalWrite(BLUELED, LOW);
-    digitalWrite(YELLOWLED, LOW);
-}
 
 
 /* ------------------------------------------------------*/
@@ -133,15 +111,43 @@ void setup()
 void handleRequest(void)
 {
     // Match the request
-    if (request.indexOf("/Auto") != -1) {
+    if (request.indexOf("/RED") != -1) {
         ModeState = 0;
     }
-    if (request.indexOf("/Open") != -1) {
-
+    if (request.indexOf("/GREEN") != -1) {
         ModeState = 1;
     }
-    if(request.indexOf("/Closed") != -1) {
+    if (request.indexOf("/BLUE") != -1) {
         ModeState = 2;
+    }
+    if (request.indexOf("/WHITE") != -1) {
+        ModeState = 3;
+    }
+
+    Serial.print("ModeState == ");
+    if (ModeState == 0) {
+        digitalWrite(REDLED, HIGH);
+        digitalWrite(GREENLED, LOW);
+        digitalWrite(BLUELED, LOW);
+        Serial.println("RED");
+    }
+    else if (ModeState == 1) {
+        digitalWrite(REDLED, LOW);
+        digitalWrite(GREENLED, HIGH);
+        digitalWrite(BLUELED, LOW);
+        Serial.println("GREEN");
+    }
+    else if (ModeState == 2) {
+        digitalWrite(REDLED, LOW);
+        digitalWrite(GREENLED, LOW);
+        digitalWrite(BLUELED, HIGH);
+        Serial.println("BLUE");
+    }
+    else if (ModeState == 3) {
+        digitalWrite(REDLED, HIGH);
+        digitalWrite(GREENLED, HIGH);
+        digitalWrite(BLUELED, HIGH);
+        Serial.println("WHITE");
     }
 }
 
@@ -160,9 +166,14 @@ void handleLayout(void)
     client.println(""); //  do not forget this one
     client.println("<!DOCTYPE HTML>");
     client.println("<html>");
-    client.println("<head><title>ConnectedBlinds</title></head>");
+    client.println("<head><title>RGB-Cabinet</title></head>");
     client.println("<body>");
-    client.println("Hello World");
+    client.println("RGB-Cabinet");
+    client.println("<br></br>");
+    client.println("<br><a href=\"/RED\"\"><button type=button>RED</button></a></br>");
+    client.println("<br><a href=\"/GREEN\"\"><button type=button>GREEN</button></a></br>");
+    client.println("<br><a href=\"/BLUE\"\"><button type=button>BLUE</button></a></br>");
+    client.println("<br><a href=\"/WHITE\"\"><button type=button>WHITE</button></a></br>");
     client.println("</body>");
     client.println("</html>");
     delay(1);
